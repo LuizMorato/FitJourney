@@ -1,0 +1,5 @@
+Telas faltantes:
+- Home
+- Análise de Rótulos
+- Cadastro de comidas
+-> Fazer pelo Firebase
