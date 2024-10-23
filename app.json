@@ -2,6 +2,16 @@
   "expo": {
     "name": "FitJourney",
     "slug": "FitJourney",
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Permitir que Votto acesse sua câmera?",
+          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone",
+          "recordAudioAndroid": true
+        }
+      ]
+    ],
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -21,7 +31,17 @@
       }
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "config": {
+        "firebase": {
+          "apiKey": "AIzaSyAsjG4YFxHoAeYEYA1G88fmSZ1zvsNKsnk",
+          "authDomain": "fit-journey-users.firebaseapp.com",
+          "projectId": "fit-journey-users",
+          "storageBucket": "fit-journey-users.appspot.com",
+          "messagingSenderId": "112270504735",
+          "appId": "1:112270504735:web:983e61b0de94fc28a7362a"
+        }
+      }
     }
   }
 }
