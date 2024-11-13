@@ -6,9 +6,14 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Inicial from './screens/Inicial';
 import RegisterStep0 from './screens/RegisterStep0';
 import Login from './screens/Login';
-import Home from './screens/Home';
+import Home from './screens/Home';  // Importa a tela Home diretamente
 
-// Criação do stack
+// Telas de Exercícios
+import Agachamentos from './screens/exercises_screens/Agachamentos';
+import Flexoes from './screens/exercises_screens/Flexoes';
+import Alongamentos from './screens/exercises_screens/Alongamentos';
+import Exercicio from './screens/exercises_screens/Exercicio';
+
 const Stack = createNativeStackNavigator();
 
 function AppNavigator() {
@@ -17,7 +22,14 @@ function AppNavigator() {
       <Stack.Screen options={{ headerShown: false }} name="Inicial" component={Inicial} />
       <Stack.Screen options={{ headerShown: false }} name="RegisterStep0" component={RegisterStep0} />
       <Stack.Screen options={{ headerShown: false }} name="Login" component={Login} />
-      <Stack.Screen options={{ headerShown: false }} name="Home" component={Home} />
+      {/* Removido o HomeTabs e adicionado o Home diretamente */}
+      <Stack.Screen options={{ headerShown: false }} name="Home" component={Home} /> 
+
+      {/* Telas de Exercícios */}
+      <Stack.Screen name="Agachamentos" component={Agachamentos} />
+      <Stack.Screen name="Flexoes" component={Flexoes} />
+      <Stack.Screen name="Alongamentos" component={Alongamentos} />
+      <Stack.Screen name="Exercicio" component={Exercicio} />
     </Stack.Navigator>
   );
 }
