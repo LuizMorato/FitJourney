@@ -1,24 +1,23 @@
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app"; // Correto, vem de 'firebase/app'
-import { initializeAuth, getAuth, getReactNativePersistence, PhoneAuthProvider, signInWithCredential } from "firebase/auth"; // getReactNativePersistence vem de 'firebase/auth'
-import AsyncStorage from '@react-native-async-storage/async-storage';
+// firebase.js
+import { initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
 
-// Your web app's Firebase configuration
+// Sua configuração do Firebase
 const firebaseConfig = {
-  apiKey: "AIzaSyAsjG4YFxHoAeYEYA1G88fmSZ1zvsNKsnk",
-  authDomain: "fit-journey-users.firebaseapp.com",
-  projectId: "fit-journey-users",
-  storageBucket: "fit-journey-users.appspot.com",
-  messagingSenderId: "112270504735",
-  appId: "1:112270504735:web:983e61b0de94fc28a7362a"
+  apiKey: "AIzaSyDorR3lOJtSz6nmZ6M6CNo8hmmc5pCLtI0",
+  authDomain: "smart-eats-users.firebaseapp.com",
+  projectId: "smart-eats-users",
+  storageBucket: "smart-eats-users.firebasestorage.app",
+  messagingSenderId: "645328212049",
+  appId: "1:645328212049:web:4fc0bc1254496f24fae870"
 };
 
-// Initialize Firebase
+// Verifica se a app já foi inicializada antes de inicializar novamente
 const app = initializeApp(firebaseConfig);
 
-// Initialize Firebase Auth with persistence
-const auth = initializeAuth(app, {
-  persistence: getReactNativePersistence(AsyncStorage) // Certifique-se de que isso vem de 'firebase/auth'
-});
+// Agora você pode usar Auth e Firestore
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-export { auth, PhoneAuthProvider, firebaseConfig, signInWithCredential };
+export { app, auth, db };
