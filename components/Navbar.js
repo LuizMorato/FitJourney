@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Image, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 
 import scanIcon from '../assets/scanIcon.webp';
@@ -11,29 +11,35 @@ import recipesIcon from '../assets/recipesIcon.png';
 const CustomTabBar = () => {
   const navigation = useNavigation();
   const route = useRoute();
+  const [email, setEmail] = useState(null);
+
+  // Verificando se o parâmetro 'email' está disponível
+  useEffect(() => {
+    if (route.params && route.params.email) {
+      setEmail(route.params.email);
+    }
+  }, [route.params]);
 
   // Definindo as abas
   const tabs = [
     { name: 'Home', icon: homeIcon },
-    { name: 'Stats', icon: statsIcon }, // Descomentado
-    { name: 'Scan', icon: scanIcon },   // Descomentado
-    { name: 'Recipes', icon: recipesIcon }, // Descomentado
+    { name: 'Stats', icon: statsIcon },
+    { name: 'Scan', icon: scanIcon },
+    { name: 'Recipes', icon: recipesIcon },
     { name: 'Exercises', icon: profileIcon },
   ];
 
+  if (!email) {
+    // Enquanto o email não for carregado, exibe o loading
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#0DE347" />
+      </View>
+    );
+  }
+
   return (
-    <View style={{
-      flexDirection: 'row',
-      backgroundColor: 'white',
-      height: 70,
-      borderTopLeftRadius: 20,
-      borderTopRightRadius: 20,
-      position: 'absolute',
-      bottom: 0,
-      justifyContent: 'space-around',
-      alignItems: 'center',
-      width: '100%',
-    }}>
+    <View style={styles.tabBarContainer}>
       {tabs.map((tab, index) => {
         const focused = route.name === tab.name;
         const iconSize = focused ? 44 : 33;
@@ -43,7 +49,10 @@ const CustomTabBar = () => {
         return (
           <TouchableOpacity
             key={index}
-            onPress={() => navigation.navigate(tab.name)} // Navegação correta
+            onPress={() => {
+              // Envia o email como parâmetro para a navegação
+              navigation.navigate(tab.name, { email: email });
+            }}
             style={{
               width: 60,
               height: 60,
@@ -66,6 +75,26 @@ const CustomTabBar = () => {
       })}
     </View>
   );
+};
+
+const styles = {
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  tabBarContainer: {
+    flexDirection: 'row',
+    backgroundColor: 'white',
+    height: 70,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    position: 'absolute',
+    bottom: 0,
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    width: '100%',
+  },
 };
 
 export default CustomTabBar;

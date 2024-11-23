@@ -1,83 +1,42 @@
-import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
 import React, { useState } from 'react';
-import * as Notifications from "expo-notifications";
-
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldPlaySound: true,
-    shouldShowAlert: true,
-    shouldSetBadge: true,
-  })
-});
+import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, Alert, View } from 'react-native';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../firebase';  // Certifique-se de importar corretamente
+import Icon from 'react-native-vector-icons/FontAwesome';  // Importa o ícone de olho
 
 export default function App({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);  // Estado para controlar a visibilidade da senha
 
-  const handleCallNotifications = async () => {
-    const { status } = await Notifications.getPermissionsAsync();
-
-    if (status !== 'granted') {
-      Alert.alert("Notificações", "Não deixou as notificações ativas");
-      return;
-    }
-
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: "FitJourney: Boas-vindas!",
-        body: "Seja bem-vindo ao FitJourney!",
-      },
-      trigger: {
-        seconds: 5,
-      },
-    });
-  };
-
+  // Função para login
   const loginUser = async () => {
-    if (!email || !password) {
+    const trimmedEmail = email.trim();
+    const trimmedPassword = password.trim();
+  
+    if (!trimmedEmail || !trimmedPassword) {
       Alert.alert("Campos vazios.", "Por favor, preencha todos os campos.");
       return;
     }
-
+  
     try {
-      const response = await fetch('https://fj-php-back-2.onrender.com/index.php', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: email,
-          password: password,
-        }),
-      });
-
-      const rawData = await response.text();
-      console.log('Resposta do servidor:', rawData);
-
-      let data = {};
-      try {
-        data = JSON.parse(rawData); // Tenta parsear o JSON
-      } catch (e) {
-        console.log('Erro ao parsear JSON:', e);
-        // Exibe a resposta sem tentar fazer o parse se houver erro
-        Alert.alert("Erro de servidor", "Resposta mal formatada do servidor.");
-        return;
-      }
-
-      if (response.ok) {
-        if (data.success) {
-          Alert.alert("Login", "Login realizado com sucesso!");
-          handleCallNotifications();
-          navigation.replace('Home', { email });
-        } else {
-          Alert.alert("Erro no login", data.message || "Não foi possível fazer o login.");
-        }
-      } else {
-        Alert.alert("Erro no servidor", data.message || "Houve um erro ao conectar com o servidor.");
-      }
+      console.log('Tentando login...', trimmedEmail);
+      console.log('Tentando login...', trimmedPassword);
+      const userCredential = await signInWithEmailAndPassword(auth, trimmedEmail, trimmedPassword);
+      const user = userCredential.user;
+      console.log('Usuário autenticado:', user.uid);
+      Alert.alert("Login", "Login realizado com sucesso!");
+      navigation.replace('Home', { email: user.email });
+  
     } catch (error) {
-      console.log(error);
-      Alert.alert("Erro de rede", "Não foi possível se conectar ao servidor.");
+      console.log('Erro de login:', error);
+      if (error.code === 'auth/user-not-found') {
+        Alert.alert("Erro de login", "Este email não está cadastrado.");
+      } else if (error.code === 'auth/wrong-password') {
+        Alert.alert("Erro de login", "Senha incorreta.");
+      } else {
+        Alert.alert("Erro de login", "Não foi possível realizar o login. Tente novamente.");
+      }
     }
   };
 
@@ -91,13 +50,18 @@ export default function App({ navigation }) {
         onChangeText={setEmail}
         value={email}
       />
-      <TextInput
-        style={styles.input}
-        placeholder='Senha...'
-        onChangeText={setPassword}
-        value={password}
-        secureTextEntry={true}
-      />
+      <View style={styles.passwordContainer}>
+        <TextInput
+          style={styles.input}
+          placeholder='Senha...'
+          onChangeText={setPassword}
+          value={password}
+          secureTextEntry={!showPassword}  // Controla a visibilidade da senha
+        />
+        <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeIcon}>
+          <Icon name={showPassword ? "eye-slash" : "eye"} size={20} color="gray" />
+        </TouchableOpacity>
+      </View>
       <TouchableOpacity style={styles.button} onPress={loginUser}>
         <Text style={styles.buttonText}>Login Seguro</Text>
       </TouchableOpacity>
@@ -155,5 +119,15 @@ const styles = StyleSheet.create({
   },
   bold: {
     fontWeight: 'bold',
+  },
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  eyeIcon: {
+    position: 'absolute',
+    right: 10,
+    top: 15,
   },
 });
