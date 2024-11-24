@@ -9,12 +9,18 @@ import RegisterStep0 from './screens/RegisterStep0';
 import Login from './screens/Login';
 import Home from './screens/Home';  // Importa a tela Home diretamente
 import Exercises from './screens/Exercises';
+import AddFood from './screens/AddFood';
+import Scan from './screens/Scan';
 
 // Telas de Exercícios
 import Agachamentos from './screens/exercises_screens/Agachamentos';
 import Flexoes from './screens/exercises_screens/Flexoes';
 import Alongamentos from './screens/exercises_screens/Alongamentos';
 import Atividades from './screens/exercises_screens/Atividades';
+
+// Telas de Receitas
+import Recipes from './screens/addFood_screens/Recipes';
+import Details from './screens/addFood_screens/Details';
 
 const Stack = createNativeStackNavigator();
 
@@ -26,11 +32,16 @@ function AppNavigator({ isLoggedIn }) {
       <Stack.Screen options={{ headerShown: false }} name="Login" component={Login} />
       <Stack.Screen options={{ headerShown: false }} name="Home" component={Home} />
       <Stack.Screen options={{ headerShown: false }} name="Exercises" component={Exercises} />
+      <Stack.Screen options={{ headerShown: false }} name="AddFood" component={AddFood} />
+      <Stack.Screen options={{ headerShown: false }} name="Scan" component={Scan} />
       {/* Telas de Exercícios */}
       <Stack.Screen options={{ headerShown: false }} name="Agachamentos" component={Agachamentos} />
       <Stack.Screen options={{ headerShown: false }} name="Flexoes" component={Flexoes} />
       <Stack.Screen options={{ headerShown: false }} name="Alongamentos" component={Alongamentos} />
       <Stack.Screen options={{ headerShown: false }} name="Atividades" component={Atividades} />
+      {/* Telas de Receitas */}
+      <Stack.Screen options={{ headerShown: false }} name="Details" component={Details} />
+      <Stack.Screen options={{ headerShown: false }} name="Recipes" component={Recipes} />
     </Stack.Navigator>
   );
 }

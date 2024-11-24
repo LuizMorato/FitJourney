@@ -25,7 +25,7 @@ const CustomTabBar = () => {
     { name: 'Home', icon: homeIcon },
     { name: 'Stats', icon: statsIcon },
     { name: 'Scan', icon: scanIcon },
-    { name: 'Recipes', icon: recipesIcon },
+    { name: 'AddFood', icon: recipesIcon },
     { name: 'Exercises', icon: profileIcon },
   ];
 
