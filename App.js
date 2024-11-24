@@ -22,6 +22,10 @@ import Atividades from './screens/exercises_screens/Atividades';
 import Recipes from './screens/addFood_screens/Recipes';
 import Details from './screens/addFood_screens/Details';
 
+// Tela de Scan
+import CameraScreen from './screens/scan_screens/CameraScreen';
+import Analysis from './screens/scan_screens/Analysis';
+
 const Stack = createNativeStackNavigator();
 
 function AppNavigator({ isLoggedIn }) {
@@ -42,6 +46,9 @@ function AppNavigator({ isLoggedIn }) {
       {/* Telas de Receitas */}
       <Stack.Screen options={{ headerShown: false }} name="Details" component={Details} />
       <Stack.Screen options={{ headerShown: false }} name="Recipes" component={Recipes} />
+      {/* Tela de Scan */}
+      <Stack.Screen options={{ headerShown: false }} name="CameraScreen" component={CameraScreen} />
+      <Stack.Screen options={{ headerShown: false }} name="Analysis" component={Analysis} />
     </Stack.Navigator>
   );
 }
