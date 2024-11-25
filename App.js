@@ -7,7 +7,7 @@ import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import Inicial from './screens/Inicial';
 import RegisterStep0 from './screens/RegisterStep0';
 import Login from './screens/Login';
-import Home from './screens/Home';  // Importa a tela Home diretamente
+import Home from './screens/Home';
 import Exercises from './screens/Exercises';
 import AddFood from './screens/AddFood';
 import Scan from './screens/Scan';
@@ -30,25 +30,58 @@ const Stack = createNativeStackNavigator();
 
 function AppNavigator({ isLoggedIn }) {
   return (
-    <Stack.Navigator initialRouteName={isLoggedIn ? "Home" : "Inicial"}>
-      <Stack.Screen options={{ headerShown: false }} name="Inicial" component={Inicial} />
-      <Stack.Screen options={{ headerShown: false }} name="RegisterStep0" component={RegisterStep0} />
-      <Stack.Screen options={{ headerShown: false }} name="Login" component={Login} />
-      <Stack.Screen options={{ headerShown: false }} name="Home" component={Home} />
-      <Stack.Screen options={{ headerShown: false }} name="Exercises" component={Exercises} />
-      <Stack.Screen options={{ headerShown: false }} name="AddFood" component={AddFood} />
-      <Stack.Screen options={{ headerShown: false }} name="Scan" component={Scan} />
+    <Stack.Navigator
+      initialRouteName={isLoggedIn ? 'Home' : 'Inicial'}
+      screenOptions={{
+        gestureEnabled: true,
+        transitionSpec: {
+          open: {
+            animation: 'spring',
+            config: { stiffness: 500, damping: 30, mass: 2 },
+          },
+          close: {
+            animation: 'spring',
+            config: { stiffness: 500, damping: 30, mass: 2 },
+          },
+        },
+        cardStyleInterpolator: ({ current, layouts }) => {
+          return {
+            cardStyle: {
+              transform: [
+                {
+                  translateX: current.progress.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [layouts.screen.width, 0],
+                  }),
+                },
+              ],
+            },
+          };
+        },
+      }}
+    >
+      {/* Telas do aplicativo */}
+      <Stack.Screen name="Inicial" component={Inicial} options={{ headerShown: false }} />
+      <Stack.Screen name="RegisterStep0" component={RegisterStep0} options={{ headerShown: false }} />
+      <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
+      <Stack.Screen name="Home" component={Home} options={{ headerShown: false }} />
+      <Stack.Screen name="Exercises" component={Exercises} options={{ headerShown: false }} />
+      <Stack.Screen name="AddFood" component={AddFood} options={{ headerShown: false }} />
+      <Stack.Screen name="Scan" component={Scan} options={{ headerShown: false }} />
+      
       {/* Telas de Exercícios */}
-      <Stack.Screen options={{ headerShown: false }} name="Agachamentos" component={Agachamentos} />
-      <Stack.Screen options={{ headerShown: false }} name="Flexoes" component={Flexoes} />
-      <Stack.Screen options={{ headerShown: false }} name="Alongamentos" component={Alongamentos} />
-      <Stack.Screen options={{ headerShown: false }} name="Atividades" component={Atividades} />
+      <Stack.Screen name="Agachamentos" component={Agachamentos} options={{ headerShown: false }} />
+      <Stack.Screen name="Flexoes" component={Flexoes} options={{ headerShown: false }} />
+      <Stack.Screen name="Alongamentos" component={Alongamentos} options={{ headerShown: false }} />
+      <Stack.Screen name="Atividades" component={Atividades} options={{ headerShown: false }} />
+
       {/* Telas de Receitas */}
-      <Stack.Screen options={{ headerShown: false }} name="Details" component={Details} />
-      <Stack.Screen options={{ headerShown: false }} name="Recipes" component={Recipes} />
+      <Stack.Screen name="Details" component={Details} options={{ headerShown: false }} />
+      <Stack.Screen name="Recipes" component={Recipes} options={{ headerShown: false }} />
+
       {/* Tela de Scan */}
-      <Stack.Screen options={{ headerShown: false }} name="CameraScreen" component={CameraScreen} />
-      <Stack.Screen options={{ headerShown: false }} name="Analysis" component={Analysis} />
+      <Stack.Screen name="CameraScreen" component={CameraScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Analysis" component={Analysis} options={{ headerShown: false }} />
     </Stack.Navigator>
   );
 }
@@ -59,7 +92,7 @@ export default function MainApp() {
   useEffect(() => {
     const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setIsLoggedIn(!!user); // Se user existir, usuário está logado
+      setIsLoggedIn(!!user); // Se o usuário estiver logado, setIsLoggedIn será true
     });
 
     // Limpar o observador ao desmontar o componente
@@ -68,7 +101,6 @@ export default function MainApp() {
 
   return (
     <NavigationContainer>
-      {/* Renderiza o AppNavigator passando o estado de login */}
       <AppNavigator isLoggedIn={isLoggedIn} />
     </NavigationContainer>
   );

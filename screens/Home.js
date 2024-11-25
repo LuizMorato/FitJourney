@@ -8,13 +8,20 @@ import { doc, getDoc } from 'firebase/firestore';
 const { width, height } = Dimensions.get('window');
 
 export default function Home({ route, navigation }) {
-  // Função para formatar a data
+
+// Função para formatar a data
   function formatDate(date) {
-    const daysOfWeek = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+    const daysOfWeek = ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"];
     const dayOfWeek = daysOfWeek[date.getDay()];
     const dayOfMonth = date.getDate();
-    return `${dayOfWeek}. ${dayOfMonth}`;
+    
+    // Capitaliza a primeira letra do dia da semana e retorna a data formatada
+    return `${dayOfWeek.charAt(0).toUpperCase() + dayOfWeek.slice(1)} ${dayOfMonth}`;
   }
+
+  // Teste da função
+  const today = new Date();
+  console.log(formatDate(today));
 
   const [selectedDate, setSelectedDate] = useState('');
   const [dateList, setDateList] = useState([]);
@@ -97,31 +104,55 @@ export default function Home({ route, navigation }) {
               ) : (
                 <Icon name="user-circle" size={40} color="#aaa" />
               )}
-              <Text style={styles.headerText}>
-                Olá {profileData.name || 'Usuário'} {profileData.surname || ''}!
-              </Text>
+              <View style={styles.textContainer}>
+                <Text style={styles.headerText}>
+                  Olá {profileData.name || 'Usuário'} {profileData.surname || ''}!
+                </Text>
+                <Text style={styles.dateText}>
+                  {new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })
+                    .replace(/-feira/, '') // Remove a parte "-feira" do nome do dia da semana
+                    .replace(/^./, (char) => char.toUpperCase())}  {/* Capitaliza a primeira letra */}
+                </Text>
+              </View>
+              <Icon name="bell" size={24} color="black" style={styles.notificationIcon} />
             </View>
           )}
-          <Text style={styles.dateText}>
-            {new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}
-          </Text>
         </View>
 
         {/* Desafio diário */}
         <View style={styles.dailyChallenge}>
           <Text style={styles.dailyChallengeText}>Desafio diário</Text>
           <View style={styles.daySelector}>
-            {dateList.map((date, index) => (
-              <Text
-                key={index}
-                style={[styles.day, date === selectedDate && styles.selectedDay]}
-                onPress={() => setSelectedDate(date)}
-              >
-                {date}
-              </Text>
-            ))}
+            {dateList.map((date, index) => {
+              const [dayOfWeek, dayOfMonth] = date.split(' '); // Separa o nome do dia e o número
+              const isToday = date === selectedDate; // Verifica se é o dia selecionado (hoje)
+
+              return (
+                <View
+                  key={index}
+                  style={[styles.dayContainer, 
+                    isToday 
+                      ? styles.selectedDayContainer 
+                      : styles.otherDayContainer
+                  ]}
+                  onPress={() => setSelectedDate(date)}
+                >
+                  <Text
+                    style={[styles.day, isToday && styles.selectedDay]}
+                  >
+                    {dayOfWeek}
+                  </Text>
+                  <Text style={[styles.dayNumber, isToday && styles.selectedDayNumber]}>
+                    {dayOfMonth}
+                  </Text>
+                </View>
+              );
+            })}
           </View>
         </View>
+
+
+
 
         {/* Rotina de Hoje */}
         <View style={styles.section}>
@@ -175,117 +206,186 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F5F5F5',
-    padding: width * 0.04, // 4% da largura da tela
-    paddingBottom: height * 0.15, // Ajustado para não sobrepor a Navbar
+    padding: width * 0.06, // Reduzi o padding lateral para 6% da largura
+    paddingBottom: height * 0.18, // Reduzi o padding inferior para dar um pouco mais de espaço
+    fontFamily: 'Inter_400Regular',
   },
   header: {
-    marginTop: 20,
-    marginBottom: 20,
+    marginTop: 16, // Diminui o espaço superior
+    marginBottom: 16, // Diminui o espaço inferior
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    fontFamily: 'Inter_400Regular',
   },
   profileContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    flex: 1,
+    fontFamily: 'Inter_400Regular',
   },
   profileImage: {
-    width: width * 0.1, // 10% da largura
-    height: width * 0.1,
-    borderRadius: width * 0.05, // Metade da largura para manter o círculo
-    marginRight: width * 0.03,
+    width: width * 0.14, // Diminui um pouco a imagem do perfil
+    height: width * 0.14,
+    borderRadius: width * 0.07, // Ajusta o tamanho do círculo
+    marginRight: width * 0.03, // Diminui o espaço entre a imagem e o texto
+  },
+  textContainer: {
+    flex: 1,
   },
   headerText: {
-    fontSize: 22,
-    fontWeight: 'bold',
+    fontSize: 14,
+    color: '#555',
+    fontFamily: 'Inter_400Regular',
   },
   dateText: {
-    marginTop: 15,
-    fontSize: 16,
-    color: '#777',
+    fontSize: 15, // Ajuste no tamanho da fonte
+    fontWeight: 'bold',
+    marginTop: 5,
+    fontFamily: 'Inter_400Regular',
+  },
+  notificationIcon: {
+    marginLeft: 8, // Diminui o espaço do ícone de notificação
+    backgroundColor: 'transparent',
   },
   dailyChallenge: {
-    backgroundColor: '#DFFFD8',
-    padding: 16,
+    backgroundColor: '#DFFFD8', 
+    padding: 10, // Reduzi um pouco o padding para aproximar os itens
     borderRadius: 10,
-    marginBottom: 20,
+    marginBottom: 16,
+    flexDirection: 'row',
+    alignItems: 'center', // Para garantir alinhamento vertical
+    justifyContent: 'space-between', // Mantenha a distribuição de espaço entre o texto e os dias
   },
+
   dailyChallengeText: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
-    color: '#2F9D27',
+    color: '#000',
+    fontFamily: 'Inter_400Regular',
   },
+
   daySelector: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 10,
+    justifyContent: 'space-evenly',  // Muda para 'space-evenly' para deixar o espaçamento entre os itens mais controlado
+    width: '60%',  // Diminui a largura total da seleção de dias
   },
+
+  dayContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 5,
+    paddingVertical: 6, // Reduz a altura do padding para diminuir o espaço
+    paddingHorizontal: 8, // Reduz a largura do padding para diminuir o espaço
+    marginHorizontal: 5, // Adiciona uma pequena margem horizontal para garantir que não fiquem muito colados
+  },
+
   day: {
     fontSize: width * 0.035,
     color: '#555',
+    fontFamily: 'Inter_400Regular',
+  },
+
+  dayNumber: {
+    fontSize: 14,
+    color: '#555',
+    fontFamily: 'Inter_400Regular',
+  },
+
+  selectedDayContainer: {
+    backgroundColor: '#000',
+    borderRadius: 5,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
   },
   selectedDay: {
-    color: '#000',
+    color: '#fff',
     fontWeight: 'bold',
-    borderBottomWidth: 2,
-    borderBottomColor: '#2F9D27',
+    fontFamily: 'Inter_400Regular',
+  },
+  selectedDayNumber: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  otherDayContainer: {
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: '#000', // Borda preta para os dias "ontem" e "amanhã"
+    borderRadius: 5,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
   },
   section: {
-    marginBottom: 20,
+    marginBottom: 16, // Diminui a margem inferior
+    fontFamily: 'Inter_400Regular',
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 16, // Diminui o tamanho do título
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: 8, // Diminui a margem inferior
+    fontFamily: 'Inter_400Regular',
   },
   routineItem: {
-    paddingVertical: 10,
+    paddingVertical: 10, // Reduz o padding vertical
     borderBottomWidth: 1,
     borderBottomColor: '#E5E5E5',
+    fontFamily: 'Inter_400Regular',
   },
   routineText: {
     fontSize: 14,
     fontWeight: 'bold',
+    fontFamily: 'Inter_400Regular',
   },
   routineGoal: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#777',
+    fontFamily: 'Inter_400Regular',
   },
   statusRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    fontFamily: 'Inter_400Regular',
   },
   statusItem: {
-    width: '48%', // Dois itens ocupam 48% cada
+    width: '48%',
     backgroundColor: '#FFF',
-    padding: height * 0.02, // Dinâmico para diferentes tamanhos
+    padding: height * 0.02, // Ajuste no padding dinâmico
     borderRadius: 10,
-    marginBottom: 10,
+    marginBottom: 10, // Diminui a margem inferior
     alignItems: 'center',
+    fontFamily: 'Inter_400Regular',
   },
   statusLabel: {
     fontSize: 16,
     color: '#555',
+    fontFamily: 'Inter_400Regular',
   },
   statusValue: {
-    fontSize: 20,
+    fontSize: 18, // Diminui um pouco o tamanho da fonte
     fontWeight: 'bold',
     color: '#000',
+    fontFamily: 'Inter_400Regular',
   },
   communityButton: {
     backgroundColor: '#2F9D27',
-    padding: height * 0.02, // Margem vertical proporcional
+    padding: height * 0.02, // Ajuste no padding
     borderRadius: 10,
     alignItems: 'center',
-    marginTop: height * 0.02,
+    marginTop: height * 0.02, // Diminui o espaço superior
+    fontFamily: 'Inter_400Regular',
   },
   communityButtonText: {
     color: '#FFF',
     fontSize: 16,
     fontWeight: 'bold',
+    fontFamily: 'Inter_400Regular',
   },
   loadingContainer: {
-    flex: 1, // Isso faz com que a view ocupe toda a tela
-    justifyContent: 'center', // Centraliza verticalmente
-    alignItems: 'center', // Centraliza horizontalmente
-    backgroundColor: 'rgba(255, 255, 255, 0.7)', // Uma leve transparência para não ocultar o fundo completamente
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    fontFamily: 'Inter_400Regular',
   },
   navbarContainer: {
     position: 'absolute',
@@ -293,11 +393,15 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     zIndex: 1,
-    height: height * 0.1, // 10% da altura
+    height: height * 0.12,
+    fontFamily: 'Inter_400Regular',
   },
   scrollContent: {
-    margin: 30,  // Espaço nas laterais
-    marginBottom: height * 0.2,
-    paddingBottom: 100, // Aumentando o espaço na parte inferior para garantir que o conteúdo tenha espaço
+    margin: 24, // Diminui a margem geral
+    marginBottom: height * 0.25,
+    paddingBottom: 100,
+    fontFamily: 'Inter_400Regular',
   },
 });
+
+
