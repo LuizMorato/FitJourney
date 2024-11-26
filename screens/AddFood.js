@@ -9,11 +9,6 @@ const AddFood = ({ route, navigation }) => {
   const [foodData, setFoodData] = useState(null);
   const [savedFoodData, setSavedFoodData] = useState([]);
 
-  const foods = [
-    { id: 1, title: 'Pão com Manteiga', description: 'Boa escolha!', icon: require('../assets/bread.png'), iconColor: 'green' },
- 
-  ];
-
   useEffect(() => {
     const loadFoodData = async () => {
       try {
@@ -47,22 +42,10 @@ const AddFood = ({ route, navigation }) => {
             </View>
           </View>
         )}
-        {foods.map(food => (
-          <View key={food.id} style={styles.foodCard}>
-            <Image source={food.icon} style={styles.foodIcon} />
-            <View style={styles.foodInfo}>
-              <Text style={styles.foodTitle}>{food.title}</Text>
-              <Text style={styles.foodDescription}>{food.description}</Text>
-            </View>
-            <TouchableOpacity style={styles.moreButton}>
-              <Ionicons name="ellipsis-horizontal" size={24} color="black" />
-            </TouchableOpacity>
-          </View>
-        ))}
       </ScrollView>
       <TouchableOpacity 
         style={styles.addButton} 
-        onPress={() => navigation.navigate('Recipes')}
+        onPress={() => navigation.navigate('Recipes', {email})}
       >
         <Ionicons name="add" size={36} color="white" />
       </TouchableOpacity>
@@ -131,7 +114,7 @@ const styles = StyleSheet.create({
   },
   addButton: {
     position: 'absolute',
-    bottom: 80, // Ajustado para ficar acima da navbar
+    bottom: 110, // Ajustado para ficar acima da navbar
     right: 20,
     width: 60,
     height: 60,
@@ -147,6 +130,5 @@ const styles = StyleSheet.create({
     zIndex: 2, // Garante que o botão fique acima da navbar
   },
 });
-
 
 export default AddFood;

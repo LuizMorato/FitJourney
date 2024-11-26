@@ -1,71 +1,65 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, SafeAreaView, ActivityIndicator, StyleSheet, Image, ScrollView, Dimensions } from 'react-native';
+import { View, Text, SafeAreaView, ActivityIndicator, StyleSheet, Image, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Navbar from '../components/Navbar';
-import { db } from '../firebase'; 
+import { db } from '../firebase';
 import { doc, getDoc } from 'firebase/firestore';
 
 const { width, height } = Dimensions.get('window');
 
 export default function Home({ route, navigation }) {
-
-// Função para formatar a data
-  function formatDate(date) {
-    const daysOfWeek = ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"];
-    const dayOfWeek = daysOfWeek[date.getDay()];
-    const dayOfMonth = date.getDate();
-    
-    // Capitaliza a primeira letra do dia da semana e retorna a data formatada
-    return `${dayOfWeek.charAt(0).toUpperCase() + dayOfWeek.slice(1)} ${dayOfMonth}`;
-  }
-
-  // Teste da função
-  const today = new Date();
-  console.log(formatDate(today));
-
   const [selectedDate, setSelectedDate] = useState('');
   const [dateList, setDateList] = useState([]);
-  
+  const [checklist, setChecklist] = useState({
+    agua: false,
+    exercicios: false,
+    passos: false,
+  });
+
+  const toggleItem = (key) => {
+    setChecklist(prevChecklist => ({
+      ...prevChecklist,
+      [key]: !prevChecklist[key],
+    }));
+  };
+
   useEffect(() => {
-    // Função para gerar datas dinâmicas
     const generateDates = () => {
       const dates = [];
       const today = new Date();
 
-      // Adiciona as três datas: ontem, hoje e amanhã
       for (let i = -1; i <= 1; i++) {
         const newDate = new Date();
         newDate.setDate(today.getDate() + i);
-        dates.push(formatDate(newDate));
+        const daysOfWeek = ["dom.", "seg.", "ter.", "qua.", "qui.", "sex.", "sáb."];
+        const dayOfWeek = daysOfWeek[newDate.getDay()];
+        const dayOfMonth = newDate.getDate();
+        dates.push(`${dayOfWeek.charAt(0).toUpperCase() + dayOfWeek.slice(1)} ${dayOfMonth}`);
       }
 
       setDateList(dates);
-      setSelectedDate(dates[1]); // Seleciona a data do meio como "hoje"
+      setSelectedDate(dates[1]);
     };
 
     generateDates();
   }, []);
 
-  const { email } = route.params; // Obtém o e-mail dos parâmetros de rota
+  const { email, total_calories } = route.params;
+
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Função para deslogar o usuário e voltar à tela de login
-  function logout() {
-    alert("Deslogado");
-    navigation.replace('Login');
-  }
+  const formatValue = (value) => (value != null ? value : 0);
 
-  // UseEffect para buscar as informações do perfil do usuário via Firestore
   useEffect(() => {
     if (email) {
       const fetchUserProfile = async () => {
         try {
-          const docRef = doc(db, 'users', email); // Referência ao documento do Firestore com o email do usuário
+          const docRef = doc(db, 'users', email);
           const docSnap = await getDoc(docRef);
 
           if (docSnap.exists()) {
-            setProfileData(docSnap.data()); // Dados do perfil armazenados no Firestore
+            setProfileData(docSnap.data());
           } else {
             console.log("Não encontrou o documento do usuário!");
           }
@@ -82,7 +76,6 @@ export default function Home({ route, navigation }) {
     }
   }, [email]);
 
-  // Exibe um indicador de carregamento enquanto busca o perfil do usuário
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -94,110 +87,115 @@ export default function Home({ route, navigation }) {
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* Header */}
         <View style={styles.header}>
-          {/* Exibe o nome, sobrenome e a foto de perfil, se disponíveis */}
           {profileData && (
             <View style={styles.profileContainer}>
-              {profileData.profileImage ? (
-                <Image source={{ uri: profileData.profileImage }} style={styles.profileImage} />
-              ) : (
-                <Icon name="user-circle" size={40} color="#aaa" />
-              )}
+              <TouchableOpacity
+                onPress={() => navigation.navigate('Settings', { email })}
+                style={styles.profileImageContainer}
+              >
+                {profileData.profileImage ? (
+                  <Image source={{ uri: profileData.profileImage }} style={styles.profileImage} />
+                ) : (
+                  <Icon name="user-circle" size={40} color="#aaa" />
+                )}
+              </TouchableOpacity>
+
               <View style={styles.textContainer}>
                 <Text style={styles.headerText}>
                   Olá {profileData.name || 'Usuário'} {profileData.surname || ''}!
                 </Text>
                 <Text style={styles.dateText}>
                   {new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })
-                    .replace(/-feira/, '') // Remove a parte "-feira" do nome do dia da semana
-                    .replace(/^./, (char) => char.toUpperCase())}  {/* Capitaliza a primeira letra */}
+                    .replace(/-feira/, '')
+                    .replace(/^./, (char) => char.toUpperCase())}
                 </Text>
               </View>
-              <Icon name="bell" size={24} color="black" style={styles.notificationIcon} />
+              <Icon name="bell" size={24} color="black" style={styles.notificationIcon} onPress={() => navigation.navigate('Notifications', { email })}/>
             </View>
           )}
         </View>
 
-        {/* Desafio diário */}
         <View style={styles.dailyChallenge}>
-          <Text style={styles.dailyChallengeText}>Desafio diário</Text>
+          <Text style={styles.dailyChallengeText}>
+            Desafio{'\n'}Diário
+          </Text>
           <View style={styles.daySelector}>
             {dateList.map((date, index) => {
-              const [dayOfWeek, dayOfMonth] = date.split(' '); // Separa o nome do dia e o número
-              const isToday = date === selectedDate; // Verifica se é o dia selecionado (hoje)
+              const [dayOfWeek, dayOfMonth] = date.split(' ');
+              const isToday = date === selectedDate;
 
               return (
-                <View
+                <TouchableOpacity
                   key={index}
-                  style={[styles.dayContainer, 
-                    isToday 
-                      ? styles.selectedDayContainer 
-                      : styles.otherDayContainer
-                  ]}
+                  style={[styles.dayContainer, isToday ? styles.selectedDayContainer : styles.otherDayContainer]}
                   onPress={() => setSelectedDate(date)}
                 >
-                  <Text
-                    style={[styles.day, isToday && styles.selectedDay]}
-                  >
-                    {dayOfWeek}
-                  </Text>
-                  <Text style={[styles.dayNumber, isToday && styles.selectedDayNumber]}>
-                    {dayOfMonth}
-                  </Text>
-                </View>
+                  <Text style={[styles.day, isToday && styles.selectedDay]}>{dayOfWeek}</Text>
+                  <Text style={[styles.dayNumber, isToday && styles.selectedDayNumber]}>{dayOfMonth}</Text>
+                </TouchableOpacity>
               );
             })}
           </View>
         </View>
 
-
-
-
-        {/* Rotina de Hoje */}
+        <Text style={styles.sectionTitle}>Rotina de Hoje</Text>
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Rotina de Hoje</Text>
-          <View style={styles.routineItem}>
-            <Text style={styles.routineText}>Água</Text>
-            <Text style={styles.routineGoal}>Meta de água para beber</Text>
-          </View>
-          <View style={styles.routineItem}>
-            <Text style={styles.routineText}>Exercícios</Text>
-            <Text style={styles.routineGoal}>Meta de exercícios</Text>
-          </View>
-          <View style={styles.routineItem}>
-            <Text style={styles.routineText}>Passos</Text>
-            <Text style={styles.routineGoal}>Meta de caminhada</Text>
+          <View style={styles.routineList}>
+            {[
+              { key: 'agua', title: 'Água', subtitle: 'Meta de água para beber', color: '#00CFFF' },
+              { key: 'exercicios', title: 'Exercícios', subtitle: 'Meta de exercícios', color: '#FF6B6B' },
+              { key: 'passos', title: 'Passos', subtitle: 'Meta de caminhada', color: '#FFB6C1' },
+            ].map((item) => (
+              <TouchableOpacity
+                key={item.key}
+                style={styles.routineItem}
+                onPress={() => toggleItem(item.key)}
+              >
+                <View style={[styles.iconContainer, { backgroundColor: item.color }]} />
+                <View style={styles.textContainer}>
+                  <Text style={styles.routineTitle}>{item.title}</Text>
+                  <Text style={styles.routineSubtitle}>{item.subtitle}</Text>
+                </View>
+                <Icon
+                  name={checklist[item.key] ? 'check-circle' : 'circle-o'}
+                  size={24}
+                  color={checklist[item.key] ? '#00FF19' : '#CCC'}
+                />
+              </TouchableOpacity>
+            ))}
           </View>
         </View>
 
-        {/* Status */}
+        <Text style={styles.sectionTitle}>Status Nutricional</Text>
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Status</Text>
-          <View style={styles.statusRow}>
-            <View style={styles.statusItem}>
-              <Text style={styles.statusLabel}>Proteínas</Text>
-              <Text style={styles.statusValue}>112g</Text>
-            </View>
-            <View style={styles.statusItem}>
-              <Text style={styles.statusLabel}>Água</Text>
-              <Text style={styles.statusValue}>2.6 Litros</Text>
-            </View>
-          </View>
-          <View style={styles.statusRow}>
-            <View style={styles.statusItem}>
-              <Text style={styles.statusLabel}>Calorias</Text>
-              <Text style={styles.statusValue}>680 Kcal</Text>
-            </View>
-            <View style={styles.statusItem}>
-              <Text style={styles.statusLabel}>Gorduras</Text>
-              <Text style={styles.statusValue}>65g</Text>
-            </View>
+          <View style={styles.routineList}>
+            {[
+              { key: 'calories', title: 'Calorias', value: total_calories, color: '#FBB13C' },
+            ].map((item) => (
+              <TouchableOpacity
+                key={item.key}
+                style={styles.routineItem}
+              >
+                <View style={[styles.iconContainer, { backgroundColor: item.color }]} />
+                <View style={styles.textContainer}>
+                  <Text style={styles.routineTitle}>{item.title}</Text>
+                  <Text style={styles.routineSubtitle}>
+                    {formatValue(total_calories)} kcal
+                  </Text>
+                </View>
+                <Icon
+                  name="check-circle"
+                  size={24}
+                  color={item.value ? item.color : '#CCC'}
+                />
+              </TouchableOpacity>
+            ))}
           </View>
         </View>
+
       </ScrollView>
-      {/* Navbar */}
-      <Navbar navigation={navigation} email={email} style={styles.navbarContainer}/>
+      <Navbar navigation={navigation} email={email} style={styles.navbarContainer} />
     </SafeAreaView>
   );
 }
@@ -249,35 +247,30 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   dailyChallenge: {
-    backgroundColor: '#DFFFD8', 
-    padding: 10, // Reduzi um pouco o padding para aproximar os itens
-    borderRadius: 10,
+    backgroundColor: '#C5FFB7',
+    padding: 15,
+    borderRadius: 20,
     marginBottom: 16,
-    flexDirection: 'row',
-    alignItems: 'center', // Para garantir alinhamento vertical
-    justifyContent: 'space-between', // Mantenha a distribuição de espaço entre o texto e os dias
+    flexDirection: 'row', // Coloca os itens na mesma linha
+    alignItems: 'center', // Centraliza verticalmente
+    justifyContent: 'space-between', // Espaça os itens horizontalmente
   },
-
   dailyChallengeText: {
-    fontSize: 16,
+    fontFamily: 'Inter_800ExtraBold',
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#000',
-    fontFamily: 'Inter_400Regular',
+    marginRight: 10, // Adiciona espaço à direita do texto
   },
-
   daySelector: {
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',  // Muda para 'space-evenly' para deixar o espaçamento entre os itens mais controlado
-    width: '60%',  // Diminui a largura total da seleção de dias
+    flexDirection: 'row', // Mantém os dias alinhados horizontalmente
+    alignItems: 'center', // Centraliza os dias verticalmente
+    justifyContent: 'center', // Centraliza os itens horizontalmente
   },
-
   dayContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 5,
-    paddingVertical: 6, // Reduz a altura do padding para diminuir o espaço
-    paddingHorizontal: 8, // Reduz a largura do padding para diminuir o espaço
-    marginHorizontal: 5, // Adiciona uma pequena margem horizontal para garantir que não fiquem muito colados
+    marginHorizontal: 5, // Margem lateral entre os dias
   },
 
   day: {
@@ -295,13 +288,15 @@ const styles = StyleSheet.create({
   selectedDayContainer: {
     backgroundColor: '#000',
     borderRadius: 5,
+    width: 60, // Define uma largura fixa para consistência
+    height: 70, // Altura maior para o dia selecionado (hoje)
     paddingVertical: 5,
-    paddingHorizontal: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   selectedDay: {
     color: '#fff',
     fontWeight: 'bold',
-    fontFamily: 'Inter_400Regular',
   },
   selectedDayNumber: {
     color: '#fff',
@@ -310,25 +305,34 @@ const styles = StyleSheet.create({
   otherDayContainer: {
     backgroundColor: 'transparent',
     borderWidth: 1,
-    borderColor: '#000', // Borda preta para os dias "ontem" e "amanhã"
+    borderColor: '#000',
     borderRadius: 5,
-    paddingVertical: 5,
-    paddingHorizontal: 10,
+    width: 60, // Largura fixa
+    height: 60, // Altura igual à largura para formar um quadrado
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   section: {
-    marginBottom: 16, // Diminui a margem inferior
+    marginBottom: 10,
     fontFamily: 'Inter_400Regular',
+    backgroundColor: '#FFF', // Fundo branco
+    padding: 20, // Espaçamento interno
+    borderRadius: 8, // Bordas arredondadas
+    shadowColor: '#000', 
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    borderWidth: 1,
+    borderColor: 'lightgray',
+    elevation: 2,
+    flexDirection: 'column',
+    justifyContent: 'center',
   },
+
   sectionTitle: {
     fontSize: 16, // Diminui o tamanho do título
     fontWeight: 'bold',
     marginBottom: 8, // Diminui a margem inferior
-    fontFamily: 'Inter_400Regular',
-  },
-  routineItem: {
-    paddingVertical: 10, // Reduz o padding vertical
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E5E5',
     fontFamily: 'Inter_400Regular',
   },
   routineText: {
@@ -402,6 +406,50 @@ const styles = StyleSheet.create({
     paddingBottom: 100,
     fontFamily: 'Inter_400Regular',
   },
+  routineList: {
+  marginTop: 10,
+  },
+  routineItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E5E5',
+  },
+  iconContainer: {
+    width: 10,
+    height: 40,
+    borderRadius: 10,
+    marginRight: 10,
+  },
+  textContainer: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  routineTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#000',
+  },
+  routineSubtitle: {
+    fontSize: 12,
+    color: '#777',
+  },
+  statusContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 30,
+    height: 30,
+  },
+  statusCircle: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#CCC',
+  },
+
 });
 
 

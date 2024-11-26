@@ -1,10 +1,17 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
-const Agachamentos = () => {
+const Agachamentos = ({ navigation }) => {
   return (
     <ScrollView style={styles.container}>
-      <Text style={styles.title}>Agachamentos</Text>
+      {/* Cabeçalho com botão de voltar */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <Icon name="arrow-left" size={24} color="#000" />
+        </TouchableOpacity>
+        <Text style={styles.title}>Agachamentos</Text>
+      </View>
 
       {/* Card 1 */}
       <View style={styles.card}>
@@ -13,9 +20,9 @@ const Agachamentos = () => {
           <Text style={styles.brandName}>Agachamento Tradicional</Text>
         </View>
         <Text style={styles.description}>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+          O agachamento tradicional é um exercício básico que trabalha os músculos das pernas e glúteos, melhorando a força e a postura corporal.
         </Text>
-        
+
         <View style={styles.gifContainer}>
           <Image 
             source={require('./assets/agachamento1.gif')} 
@@ -33,9 +40,9 @@ const Agachamentos = () => {
           <Text style={styles.brandName}>Agachamento com Objeto</Text>
         </View>
         <Text style={styles.description}>
-          Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+          Este tipo de agachamento envolve o uso de um objeto, como garrafas de água ou um peso, para aumentar a intensidade e o fortalecimento dos músculos.
         </Text>
-        
+
         <View style={styles.gifContainer}>
           <Image 
             source={require('./assets/agachamento2.gif')} 
@@ -53,9 +60,9 @@ const Agachamentos = () => {
           <Text style={styles.brandName}>Agachamento Búlgaro (sem peso)</Text>
         </View>
         <Text style={styles.description}>
-          Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+          O agachamento búlgaro é um exercício unilateral que trabalha profundamente os glúteos, quadríceps e core, promovendo equilíbrio e estabilidade.
         </Text>
-        
+
         <View style={styles.gifContainer}>
           <Image 
             source={require('./assets/agachamento3.gif')} 
@@ -65,8 +72,6 @@ const Agachamentos = () => {
         </View>
       </View>
       {/* Card 3 Fim */}
-
-
     </ScrollView>
   );
 };
@@ -77,11 +82,20 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     padding: 16,
   },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  backButton: {
+    marginRight: 10,
+    padding: 5,
+  },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
+    flex: 1,
     textAlign: 'center',
-    marginBottom: 20,
   },
   card: {
     backgroundColor: '#f5f5f5',

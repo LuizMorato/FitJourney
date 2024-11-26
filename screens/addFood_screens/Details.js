@@ -1,87 +1,77 @@
-import React from 'react';
-import { View, Text, SafeAreaView, Image, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, SafeAreaView, Image, StyleSheet, TouchableOpacity, TextInput, ActivityIndicator, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const DetailsScreen = ({ route, navigation }) => {
-  const { foodName, selectedTypes, foodImage } = route.params;
+  const { foodName, selectedTypes, foodImage, email } = route.params;
+  
+  // Log do email recebido
+  useEffect(() => {
+    console.log('Email recebido:', email);
+  }, [email]);
+  
+  const [calories, setCalories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [totalCalories, setTotalCalories] = useState(0);
+
+  useEffect(() => {
+    const fetchCalories = async () => {
+      try {
+        const caloriesData = await Promise.all(selectedTypes.map(async (ingredient) => {
+          const response = await fetch(`https://caloriasporalimentoapi.herokuapp.com/api/calorias/?descricao=${ingredient}`);
+          const data = await response.json();
+          if (data.length > 0) {
+            return {
+              ingredient,
+              calories: parseInt(data[0].calorias.replace(' kcal', '').replace(',', ''), 10), // Remove ' kcal' and convert to int
+            };
+          }
+          return { ingredient, calories: 0 }; // Caso a API não retorne dados válidos
+        }));
+
+        setCalories(caloriesData);
+        const total = caloriesData.reduce((sum, item) => sum + item.calories, 0);
+        setTotalCalories(total);
+        setLoading(false);
+      } catch (error) {
+        console.error('Erro ao obter calorias:', error);
+        setLoading(false);
+      }
+    };
+
+    fetchCalories();
+  }, [selectedTypes]);
 
   const handleSaveAndNavigate = async () => {
-    const foodData = {
-      foodName,
-      selectedTypes,
-      foodImage
-    };
-    try {
-      await AsyncStorage.setItem('foodData', JSON.stringify(foodData));
-      navigation.navigate('AddFood');
-    } catch (error) {
-      console.error('Erro ao salvar dados de comida:', error);
-    }
-  };
-
-  // Função para renderizar o campo específico para cada tipo de alimento
-  const renderTypeSpecificFields = () => {
-    if (selectedTypes.includes('Pães')) {
-      return (
-        <>
-          <Text style={styles.inputLabel}>Quantas fatias?</Text>
-          <TextInput style={styles.input} placeholder="0" keyboardType="numeric" />
-        </>
-      );
-    }
-
-    if (selectedTypes.includes('Salada')) {
-      return (
-        <>
-          <Text style={styles.inputLabel}>Selecione os ingredientes da salada.</Text>
-          <View style={styles.ingredientTagsContainer}>
-            {['Alface', 'Tomate', 'Cebola', 'Outros'].map(ingredient => (
-              <TouchableOpacity key={ingredient} style={styles.ingredientTag}>
-                <Text style={styles.ingredientTagText}>{ingredient}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-          <TextInput style={styles.input} placeholder="Digite outro ingrediente (se tiver)..." />
-        </>
-      );
-    }
-
-     if (selectedTypes.includes('Sopa')) {
-      return (
-        <>
-          <Text style={styles.inputLabel}>Selecione os ingredientes da Sopa.</Text>
-          <View style={styles.ingredientTagsContainer}>
-            {['Carne', 'Mandioca', 'Batata', 'Outros'].map(ingredient => (
-              <TouchableOpacity key={ingredient} style={styles.ingredientTag}>
-                <Text style={styles.ingredientTagText}>{ingredient}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-          <TextInput style={styles.input} placeholder="Digite outro ingrediente (se tiver)..." />
-        </>
-      );
-    }
-
-    if (selectedTypes.includes('Fruta')) {
-      return (
-        <>
-          <Text style={styles.inputLabel}>Qual a quantidade da fruta (em gramas)?</Text>
-          <TextInput style={styles.input} placeholder="0g" keyboardType="numeric" />
-        </>
-      );
-    }
-
-    if (selectedTypes.some(type => ['Frango', 'Bovinos', 'Suínos'].includes(type))) {
-      return (
-        <>
-          <Text style={styles.inputLabel}>Qual é a quantidade (em gramas)?</Text>
-          <TextInput style={styles.input} placeholder="0g" keyboardType="numeric" />
-        </>
-      );
-    }
-
-    return null;
+    // Função para exibir o alert
+    Alert.alert(
+      'Você comeu essa receita?',
+      'Deseja adicionar as calorias dessa receita?',
+      [
+        {
+          text: 'Não',
+          onPress: () => {
+            console.log('Nada enviado');
+            navigation.navigate('Home'); // Vai para a tela Home sem parâmetros
+          },
+          style: 'cancel',
+        },
+        {
+          text: 'Sim',
+          onPress: async () => {
+            console.log('Calorias enviadas:', totalCalories);
+            try {
+              // Envia as calorias totais para a tela "Home"
+              navigation.navigate('Home', { total_calories: totalCalories });
+            } catch (error) {
+              console.error('Erro ao enviar calorias para a Home:', error);
+            }
+          },
+        },
+      ],
+      { cancelable: false }
+    );
   };
 
   return (
@@ -92,7 +82,7 @@ const DetailsScreen = ({ route, navigation }) => {
         </TouchableOpacity>
         <Text style={styles.headerText}>Adicionar Alimento</Text>
       </View>
-      
+
       <View style={styles.content}>
         <View style={styles.imageContainer}>
           {foodImage && (
@@ -106,7 +96,7 @@ const DetailsScreen = ({ route, navigation }) => {
         <TextInput
           style={styles.input}
           value={foodName}
-          placeholder="Sanduíche de Frango"
+          placeholder="Nome do Alimento"
           editable={false}
         />
         
@@ -119,7 +109,22 @@ const DetailsScreen = ({ route, navigation }) => {
           ))}
         </View>
 
-        {renderTypeSpecificFields()}
+        {loading ? (
+          <ActivityIndicator size="large" color="#4CAF50" />
+        ) : (
+          calories.map(({ ingredient, calories }) => (
+            <View key={ingredient} style={styles.calorieContainer}>
+              <Text style={styles.ingredientText}>{ingredient}</Text>
+              <Text style={styles.calorieText}>{calories} kcal</Text>
+            </View>
+          ))
+        )}
+
+        {loading ? null : (
+          <View style={styles.totalCaloriesContainer}>
+            <Text style={styles.totalCaloriesText}>Calorias Totais: {totalCalories} kcal</Text>
+          </View>
+        )}
       </View>
 
       <TouchableOpacity onPress={handleSaveAndNavigate} style={styles.nextButton}>
@@ -207,27 +212,29 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 14,
   },
-  inputLabel: {
-    fontSize: 16,
-    alignSelf: 'flex-start',
-    color: '#333',
-    marginBottom: 8,
-  },
-  ingredientTagsContainer: {
+  calorieContainer: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    marginBottom: 16,
+    justifyContent: 'space-between',
+    width: '100%',
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
   },
-  ingredientTag: {
-    backgroundColor: '#E0E0E0',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-    margin: 4,
-  },
-  ingredientTagText: {
+  ingredientText: {
+    fontSize: 16,
     color: '#333',
+  },
+  calorieText: {
+    fontSize: 16,
+    color: '#333',
+  },
+  totalCaloriesContainer: {
+    marginTop: 16,
+  },
+  totalCaloriesText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#4CAF50',
   },
   nextButton: {
     flexDirection: 'row',

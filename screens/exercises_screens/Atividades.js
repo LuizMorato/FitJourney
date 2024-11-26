@@ -1,12 +1,18 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 const Exercicios = ({ route, navigation }) => {
   const { tipo } = route.params;
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{tipo}</Text>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <Icon name="arrow-left" size={24} color="#000" />
+        </TouchableOpacity>
+        <Text style={styles.title}>{tipo}</Text>
+      </View>
 
       <TouchableOpacity 
         style={styles.button} 
@@ -41,11 +47,20 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     padding: 16,
   },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  backButton: {
+    marginRight: 10,
+    padding: 5,
+  },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
+    flex: 1,
     textAlign: 'center',
-    marginBottom: 20,
   },
   button: {
     flexDirection: 'row',

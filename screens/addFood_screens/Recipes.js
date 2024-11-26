@@ -1,16 +1,23 @@
-// HomeScreen.js
+
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, SafeAreaView, Image, StatusBar, Alert } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, SafeAreaView, Image, StatusBar, Alert, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const foodTypes = [
-  'Salada', 'Fruta', 'Legumes',
-  'Pães', 'Massa', 'Bebida', 'Carne', 'Sopa', 'Prato' 
-];
+const foodCategories = {
+  tubérculos: ['Batata', 'Cenoura', 'Abóbora', 'Batata-doce'],
+  vegetais: ['Alface', 'Tomate', 'Espinafre', 'Brócolis', 'Couve', 'Pepino', 'Couve-flor', 'Vagem', 'Rúcula', 'Cebola', 'Alho', 'Cogumelo', 'Acelga', 'Almeirão'],
+  temperos: ['Sal', 'Pimenta', 'Curry', 'Canela', 'Pimenta-do-reino', 'Gengibre', 'Hortelã', 'Manjericão', 'Tomilho', 'Orégano', 'Alecrim', 'Salsinha', 'Cebolinha'],
+  suínos: ['Bacon', 'Salsicha', 'Linguiça', 'Mortadela', 'Peru'],
+  bovinos: ['Carne', 'Frango', 'Carne moída', 'Cordeiro', 'Porco'],
+  frutos: ['Abacaxi', 'Banana', 'Maçã', 'Morango', 'Uva', 'Manga', 'Laranja', 'Limão', 'Melancia', 'Kiwi', 'Mamão', 'Maracuja'],
+  laticínios: ['Queijo', 'Leite', 'Iogurte', 'Manteiga', 'Creme de leite', 'Ricota', 'Leite condensado'],
+  outros: ['Pizza', 'Lasanha', 'Cuscuz', 'Quinoa', 'Tapioca', 'Hamburguer', 'Coxinha', 'Açaí', 'Granola', 'Mel', 'Açúcar', 'Gelatina', 'Sopa', 'Chá', 'Café', 'Suco', 'Refrigerante', 'Água', 'Água de coco', 'Cerveja', 'Vinho', 'Whisky', 'Gin', 'Rum', 'Tequila', 'Vodka'],
+};
 
-const HomeScreen = ({ navigation }) => {
+const HomeScreen = ({ navigation, route }) => {
+  const { email } = route.params;
   const [selectedTypes, setSelectedTypes] = useState([]);
   const [foodName, setFoodName] = useState('');
   const [foodImage, setFoodImage] = useState(null);
@@ -42,9 +49,9 @@ const HomeScreen = ({ navigation }) => {
     });
 
     if (!result.canceled) {
-      const uri = result.assets[0].uri; 
+      const uri = result.assets[0].uri;
       setFoodImage(uri);
-      await saveImage(uri); 
+      await saveImage(uri);
     }
   };
 
@@ -72,6 +79,7 @@ const HomeScreen = ({ navigation }) => {
       foodName,
       selectedTypes,
       foodImage,
+      email
     });
   };
 
@@ -79,46 +87,58 @@ const HomeScreen = ({ navigation }) => {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" />
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.navigate('AddFood')} style={styles.backButton}>
+        <TouchableOpacity onPress={() => navigation.navigate('AddFood', { email })} style={styles.backButton}>
           <Ionicons name="arrow-back" size={24} color="#000" />
         </TouchableOpacity>
         <Text style={styles.headerText}>Adicionar Alimento</Text>
       </View>
-      <View style={styles.content}>
-        <TouchableOpacity style={styles.imageUpload} onPress={pickImage}>
-          {foodImage ? (
-            <Image source={{ uri: foodImage }} style={styles.foodImage} />
-          ) : (
-            <Ionicons name="camera" size={50} color="#ccc" />
+      <ScrollView contentContainerStyle={styles.content}>
+        <View style={styles.imageUploadContainer}>
+          <TouchableOpacity style={styles.imageUpload} onPress={pickImage}>
+            {foodImage ? (
+              <Image source={{ uri: foodImage }} style={styles.foodImage} />
+            ) : (
+              <Ionicons name="camera" size={50} color="#ccc" />
+            )}
+          </TouchableOpacity>
+          {foodImage && (
+            <TouchableOpacity style={styles.editButton} onPress={pickImage}>
+              <Ionicons name="pencil" size={24} color="#fff" />
+            </TouchableOpacity>
           )}
-        </TouchableOpacity>
+        </View>
         <Text style={styles.inputLabel}>Qual o nome?</Text>
-        <TextInput 
-          style={styles.input} 
+        <TextInput
+          style={styles.input}
           placeholder="Digite o nome do alimento..."
-          placeholderTextColor="#ccc" 
+          placeholderTextColor="#ccc"
           value={foodName}
           onChangeText={setFoodName}
         />
-        <Text style={styles.inputLabel}>Selecione o tipo.</Text>
-        <View style={styles.tagsContainer}>
-          {selectedTypes.map(type => (
-            <TouchableOpacity key={type} style={styles.selectedTag} onPress={() => toggleType(type)}>
-              <Text style={styles.selectedTagText}>{type}</Text>
-              <Ionicons name="close" size={16} color="white" />
-            </TouchableOpacity>
-          ))}
-        </View>
-        <View style={styles.tagsContainer}>
-          {foodTypes.map(type => (
-            !selectedTypes.includes(type) && (
-              <TouchableOpacity key={type} style={styles.tag} onPress={() => toggleType(type)}>
-                <Text style={styles.tagText}>{type}</Text>
-              </TouchableOpacity>
-            )
-          ))}
-        </View>
-      </View>
+        <Text style={styles.inputLabel}>Selecione os ingredientes.</Text>
+        {Object.keys(foodCategories).map(category => (
+          <View key={category} style={styles.categoryContainer}>
+            <Text style={styles.categoryTitle}>{category.charAt(0).toUpperCase() + category.slice(1)}</Text>
+            <View style={styles.tagsContainer}>
+              {foodCategories[category].map(type => (
+                !selectedTypes.includes(type) && (
+                  <TouchableOpacity key={type} style={styles.tag} onPress={() => toggleType(type)}>
+                    <Text style={styles.tagText}>{type}</Text>
+                  </TouchableOpacity>
+                )
+              ))}
+            </View>
+            <View style={styles.tagsContainer}>
+              {selectedTypes.filter(type => foodCategories[category].includes(type)).map(type => (
+                <TouchableOpacity key={type} style={styles.selectedTag} onPress={() => toggleType(type)}>
+                  <Text style={styles.selectedTagText}>{type}</Text>
+                  <Ionicons name="close" size={16} color="white" />
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        ))}
+      </ScrollView>
       <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
         <Text style={styles.nextButtonText}>Avançar</Text>
         <Ionicons name="arrow-forward" size={20} color="#fff" />
@@ -126,8 +146,9 @@ const HomeScreen = ({ navigation }) => {
     </SafeAreaView>
   );
 };
+
 const styles = StyleSheet.create({
-    container: {
+  container: {
     flex: 1,
     backgroundColor: '#fafafa',
   },
@@ -138,20 +159,23 @@ const styles = StyleSheet.create({
     borderBottomColor: '#e0e0e0',
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center', // Alinha o texto ao centro
+    justifyContent: 'center',
   },
   backButton: {
-    position: 'absolute', // Posiciona o botão à esquerda da tela
+    position: 'absolute',
     left: 16,
   },
   headerText: {
     fontSize: 18,
     fontWeight: 'bold',
   },
-
   content: {
     padding: 16,
     alignItems: 'center',
+  },
+  imageUploadContainer: {
+    position: 'relative',
+    marginBottom: 16,
   },
   imageUpload: {
     width: 100,
@@ -160,13 +184,20 @@ const styles = StyleSheet.create({
     backgroundColor: '#e0e0e0',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 16,
     overflow: 'hidden',
   },
   foodImage: {
     width: '100%',
     height: '100%',
     resizeMode: 'cover',
+  },
+  editButton: {
+    position: 'absolute',
+    bottom: 5,
+    right: 5,
+    backgroundColor: '#4CAF50',
+    borderRadius: 20,
+    padding: 5,
   },
   inputLabel: {
     fontSize: 16,
@@ -183,6 +214,15 @@ const styles = StyleSheet.create({
     width: '100%',
     marginBottom: 16,
     backgroundColor: '#fff',
+  },
+  categoryContainer: {
+    marginBottom: 20,
+    width: '100%',
+  },
+  categoryTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 8,
   },
   tagsContainer: {
     flexDirection: 'row',

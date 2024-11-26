@@ -11,6 +11,10 @@ import Home from './screens/Home';
 import Exercises from './screens/Exercises';
 import AddFood from './screens/AddFood';
 import Scan from './screens/Scan';
+import Notifications from './screens/Notifications';
+import Finalizacao from './screens/Finalizacao';
+import Settings from './screens/Settings';
+import Plans from './screens/Plans';
 
 // Telas de Exercícios
 import Agachamentos from './screens/exercises_screens/Agachamentos';
@@ -68,6 +72,10 @@ function AppNavigator({ isLoggedIn }) {
       <Stack.Screen name="Exercises" component={Exercises} options={{ headerShown: false }} />
       <Stack.Screen name="AddFood" component={AddFood} options={{ headerShown: false }} />
       <Stack.Screen name="Scan" component={Scan} options={{ headerShown: false }} />
+      <Stack.Screen name="Notifications" component={Notifications} options={{ headerShown: false }} />
+      <Stack.Screen name="Settings" component={Settings} options={{ headerShown: false}} />
+      <Stack.Screen name="Finalizacao" component={Finalizacao} options={{ headerShown: false}} />
+      <Stack.Screen name="Plans" component={Plans} options={{ headerShown: false}} />
       
       {/* Telas de Exercícios */}
       <Stack.Screen name="Agachamentos" component={Agachamentos} options={{ headerShown: false }} />

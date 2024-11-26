@@ -9,7 +9,7 @@ const AnalyzeLabel = ({ route, navigation }) => {
   const [foodData, setFoodData] = useState(null);
 
   const foods = [
-    { id: 1, title: 'Achocolatado', description: 'Produto industrializado', icon: require('../assets/bread.png'), iconColor: 'green' },
+    { id: 1, title: 'Bebida Láctea UHT Chocolate Pirakids 200ml', description: 'Produto industrializado', icon: require('../assets/chocolate.webp'), iconColor: 'green' },
   ];
 
   useEffect(() => {
@@ -46,7 +46,10 @@ const AnalyzeLabel = ({ route, navigation }) => {
               <Text style={styles.foodTitle}>{food.title}</Text>
               <Text style={styles.foodDescription}>{food.description}</Text>
             </View>
-            <TouchableOpacity style={styles.moreButton}>
+            <TouchableOpacity 
+              style={styles.moreButton}
+              onPress={() => navigation.navigate('Analysis')}  // Navega para a tela 'Analysis' sem parâmetros
+            >
               <Ionicons name="ellipsis-horizontal" size={24} color="black" />
             </TouchableOpacity>
           </View>
@@ -126,7 +129,7 @@ const styles = StyleSheet.create({
   },
   scanButton: {
     position: 'absolute',
-    top: 620, 
+    top: 600, 
     right: 20,
     width: 60,
     height: 60,

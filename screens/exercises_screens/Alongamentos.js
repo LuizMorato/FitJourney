@@ -1,10 +1,17 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
-const Alongamentos = () => {
+const Alongamentos = ({ navigation }) => {
   return (
     <ScrollView style={styles.container}>
-      <Text style={styles.title}>Alongamentos</Text>
+      {/* Cabeçalho com botão de voltar */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <Icon name="arrow-left" size={24} color="#000" />
+        </TouchableOpacity>
+        <Text style={styles.title}>Alongamentos</Text>
+      </View>
 
       {/* Card 1 */}
       <View style={styles.card}>
@@ -13,9 +20,9 @@ const Alongamentos = () => {
           <Text style={styles.brandName}>Alongamento de Coluna</Text>
         </View>
         <Text style={styles.description}>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+          Este alongamento ajuda a aliviar a tensão na região da coluna, promovendo maior flexibilidade e relaxamento muscular. Ideal para pessoas que passam muito tempo sentadas ou com dores nas costas.
         </Text>
-        
+
         <View style={styles.gifContainer}>
           <Image 
             source={require('./assets/alongamento.gif')} 
@@ -33,9 +40,9 @@ const Alongamentos = () => {
           <Text style={styles.brandName}>Alongamento de Tronco</Text>
         </View>
         <Text style={styles.description}>
-          Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+          Este alongamento é ótimo para melhorar a mobilidade do tronco e a postura. Ele reduz a rigidez muscular na região lombar e nos músculos das laterais do corpo.
         </Text>
-        
+
         <View style={styles.gifContainer}>
           <Image 
             source={require('./assets/alongamento2.gif')} 
@@ -46,7 +53,6 @@ const Alongamentos = () => {
       </View>
       {/* Card 2 Fim */}
 
-
       {/* Card 3 */}
       <View style={styles.card}>
         <View style={styles.logoContainer}>
@@ -54,19 +60,18 @@ const Alongamentos = () => {
           <Text style={styles.brandName}>Alongamento Perdigueiro Dinâmico</Text>
         </View>
         <Text style={styles.description}>
-          Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+          O alongamento perdigueiro dinâmico é excelente para fortalecer o core e melhorar o equilíbrio corporal. Ele também ajuda a alongar os músculos das costas e das pernas de forma eficaz.
         </Text>
-        
+
         <View style={styles.gifContainer}>
           <Image 
-            source={require('./assets/alongamento3.gif')}
+            source={require('./assets/alongamento3.gif')} 
             style={styles.gif} 
             resizeMode="contain"
           />
         </View>
       </View>
       {/* Card 3 Fim */}
-
     </ScrollView>
   );
 };
@@ -77,11 +82,20 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     padding: 16,
   },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  backButton: {
+    marginRight: 10,
+    padding: 5,
+  },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
+    flex: 1,
     textAlign: 'center',
-    marginBottom: 20,
   },
   card: {
     backgroundColor: '#f5f5f5',

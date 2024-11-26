@@ -1,10 +1,17 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
-const Flexoes = () => {
+const Flexoes = ({ navigation }) => {
   return (
     <ScrollView style={styles.container}>
-      <Text style={styles.title}>Flexoes</Text>
+      {/* Cabeçalho com botão de voltar */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <Icon name="arrow-left" size={24} color="#000" />
+        </TouchableOpacity>
+        <Text style={styles.title}>Flexões</Text>
+      </View>
 
       {/* Card 1 */}
       <View style={styles.card}>
@@ -13,7 +20,7 @@ const Flexoes = () => {
           <Text style={styles.brandName}>Flexão Tradicional</Text>
         </View>
         <Text style={styles.description}>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+          A flexão tradicional é um exercício básico que trabalha o peitoral, tríceps e ombros, ajudando a construir força na parte superior do corpo.
         </Text>
         
         <View style={styles.gifContainer}>
@@ -33,7 +40,7 @@ const Flexoes = () => {
           <Text style={styles.brandName}>Flexão Diamante</Text>
         </View>
         <Text style={styles.description}>
-          Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+          A flexão diamante foca mais intensamente no tríceps, posicionando as mãos próximas em formato de diamante para uma ativação muscular mais profunda.
         </Text>
         
         <View style={styles.gifContainer}>
@@ -50,10 +57,10 @@ const Flexoes = () => {
       <View style={styles.card}>
         <View style={styles.logoContainer}>
           <Image source={require('./assets/fit.png')} style={styles.logo} />
-          <Text style={styles.brandName}>Flexão Declinada </Text>
+          <Text style={styles.brandName}>Flexão Declinada</Text>
         </View>
         <Text style={styles.description}>
-          Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+          A flexão declinada aumenta o foco nos músculos superiores do peitoral e ombros, elevando os pés em uma superfície elevada.
         </Text>
         
         <View style={styles.gifContainer}>
@@ -65,7 +72,6 @@ const Flexoes = () => {
         </View>
       </View>
       {/* Card 3 Fim */}
-
     </ScrollView>
   );
 };
@@ -76,11 +82,20 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     padding: 16,
   },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  backButton: {
+    marginRight: 10,
+    padding: 5,
+  },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
+    flex: 1,
     textAlign: 'center',
-    marginBottom: 20,
   },
   card: {
     backgroundColor: '#f5f5f5',

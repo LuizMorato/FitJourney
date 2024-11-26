@@ -23,7 +23,7 @@ const CustomTabBar = () => {
   // Definindo as abas
   const tabs = [
     { name: 'Home', icon: homeIcon },
-    { name: 'Stats', icon: statsIcon },
+    { name: 'Plans', icon: statsIcon },
     { name: 'Scan', icon: scanIcon },
     { name: 'AddFood', icon: recipesIcon },
     { name: 'Exercises', icon: profileIcon },

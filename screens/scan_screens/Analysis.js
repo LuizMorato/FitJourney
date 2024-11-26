@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
-export default function App() {
+export default function App({ navigation }) {
   const [productData, setProductData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -40,35 +41,99 @@ export default function App() {
   }
 
   return (
-    <ScrollView style={styles.container}>
-      {/* Header com imagem e informações do produto */}
-      <View style={[styles.productHeader, { backgroundColor: productBackgroundColor }]}>
-        <Image style={styles.productImage} source={{ uri: image_url }} />
-        <View style={styles.productInfo}>
-          <Text style={styles.productTitle}>{name}</Text>
-          <Text style={styles.productSize}>{portion.quantity} ({portion.unit})</Text>
-          <View style={[styles.productRating, { backgroundColor: '#FFF' }]}>
-            <Text style={[styles.productScore]}>{rating}</Text>
-          </View>
-        </View>
+    <View style={styles.container}>
+      {/* Cabeçalho fixo com o botão de voltar e título "Análise" */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <Ionicons name="arrow-back" size={24} color="black" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Análise</Text>
       </View>
 
-      {/* Informações nutricionais */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Informações Nutricionais</Text>
-        <Text style={styles.nutritionText}>Calorias: {nutrition.calories_kcal} kcal</Text>
-        <Text style={styles.nutritionText}>Carboidratos: {nutrition.carbohydrates_g} g</Text>
-        <Text style={styles.nutritionText}>Açúcares Totais: {nutrition.total_sugars_g} g</Text>
-        <Text style={styles.nutritionText}>Açúcares Adicionados: {nutrition.added_sugars_g} g</Text>
-        <Text style={styles.nutritionText}>Proteína: {nutrition.protein_g} g</Text>
-        <Text style={styles.nutritionText}>Gordura Total: {nutrition.total_fat_g} g</Text>
-        <Text style={styles.nutritionText}>Gordura Saturada: {nutrition.saturated_fat_g} g</Text>
-        <Text style={styles.nutritionText}>Sódio: {nutrition.sodium_mg} mg</Text>
-        <Text style={styles.nutritionText}>Vitamina A: {nutrition.vitamin_A_ug} µg</Text>
-        <Text style={styles.nutritionText}>Vitamina D: {nutrition.vitamin_D_ug} µg</Text>
-        <Text style={styles.nutritionText}>Cálcio: {nutrition.calcium_mg} mg</Text>
-      </View>
-    </ScrollView>
+      {/* ScrollView para o conteúdo */}
+      <ScrollView style={styles.scrollViewContent}>
+        {/* Header com imagem e informações do produto */}
+        <View style={[styles.productHeader, { backgroundColor: productBackgroundColor }]}>
+          <Image style={styles.productImage} source={{ uri: image_url }} />
+          <View style={styles.productInfo}>
+            <Text style={styles.productTitle}>{name}</Text>
+            <Text style={styles.productSize}>{portion.quantity} ({portion.unit})</Text>
+            <View style={[styles.productRating, { backgroundColor: '#FFF' }]}>
+              <Text style={[styles.productScore]}>{rating}</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Informações nutricionais com cards */}
+        <View style={styles.nutritionSection}>
+          <Text style={styles.sectionTitle}>Informações Nutricionais</Text>
+
+          {/* Card de Calorias */}
+          <View style={styles.nutritionCard}>
+            <Ionicons name="flame" size={24} color="#FF5733" />
+            <Text style={styles.nutritionText}>Calorias: {nutrition.calories_kcal} kcal</Text>
+          </View>
+
+          {/* Card de Carboidratos */}
+          <View style={styles.nutritionCard}>
+            <Ionicons name="carb" size={24} color="#FFA500" />
+            <Text style={styles.nutritionText}>Carboidratos: {nutrition.carbohydrates_g} g</Text>
+          </View>
+
+          {/* Card de Açúcares Totais */}
+          <View style={styles.nutritionCard}>
+            <Ionicons name="leaf" size={24} color="#4CAF50" />
+            <Text style={styles.nutritionText}>Açúcares Totais: {nutrition.total_sugars_g} g</Text>
+          </View>
+
+          {/* Card de Açúcares Adicionados */}
+          <View style={styles.nutritionCard}>
+            <Ionicons name="pizza" size={24} color="#FF5722" />
+            <Text style={styles.nutritionText}>Açúcares Adicionados: {nutrition.added_sugars_g} g</Text>
+          </View>
+
+          {/* Card de Proteína */}
+          <View style={styles.nutritionCard}>
+            <Ionicons name="egg" size={24} color="#FFC107" />
+            <Text style={styles.nutritionText}>Proteína: {nutrition.protein_g} g</Text>
+          </View>
+
+          {/* Card de Gordura Total */}
+          <View style={styles.nutritionCard}>
+            <Ionicons name="ios-pizza" size={24} color="#FF5722" />
+            <Text style={styles.nutritionText}>Gordura Total: {nutrition.total_fat_g} g</Text>
+          </View>
+
+          {/* Card de Gordura Saturada */}
+          <View style={styles.nutritionCard}>
+            <Ionicons name="flash" size={24} color="#FFC107" />
+            <Text style={styles.nutritionText}>Gordura Saturada: {nutrition.saturated_fat_g} g</Text>
+          </View>
+
+          {/* Card de Sódio */}
+          <View style={styles.nutritionCard}>
+            <Ionicons name="alert" size={24} color="#FF5722" />
+            <Text style={styles.nutritionText}>Sódio: {nutrition.sodium_mg} mg</Text>
+          </View>
+
+          {/* Card de Vitaminas e Minerais */}
+          <View style={styles.nutritionCard}>
+            <Ionicons name="medkit" size={24} color="#4CAF50" />
+            <Text style={styles.nutritionText}>Vitamina A: {nutrition.vitamin_A_ug} µg</Text>
+          </View>
+
+          <View style={styles.nutritionCard}>
+            <Ionicons name="medkit" size={24} color="#4CAF50" />
+            <Text style={styles.nutritionText}>Vitamina D: {nutrition.vitamin_D_ug} µg</Text>
+          </View>
+
+          <View style={styles.nutritionCard}>
+            <Ionicons name="medkit" size={24} color="#4CAF50" />
+            <Text style={styles.nutritionText}>Cálcio: {nutrition.calcium_mg} mg</Text>
+          </View>
+        </View>
+      </ScrollView>
+    </View>
   );
 }
 
@@ -76,7 +141,26 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F5F5F5',
+  },
+  header: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
     padding: 16,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+  },
+  backButton: {
+    marginRight: 16,
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
   },
   productHeader: {
     flexDirection: 'row',
@@ -114,7 +198,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
   },
-  section: {
+  nutritionSection: {
     marginBottom: 20,
   },
   sectionTitle: {
@@ -122,8 +206,24 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 10,
   },
+  nutritionCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    padding: 10,
+    marginVertical: 5,
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
   nutritionText: {
     fontSize: 16,
-    marginVertical: 5,
+    marginLeft: 10,
+  },
+  scrollViewContent: {
+    marginTop: 80,  // Garantir que o conteúdo não fique atrás do header fixo
+    padding: 16,
   },
 });

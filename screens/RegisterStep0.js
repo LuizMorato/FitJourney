@@ -5,6 +5,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { createUserWithEmailAndPassword, auth } from '../firebase';
+import Icon from 'react-native-vector-icons/FontAwesome';  // Importa o ícone de olho
 
 export default function App({ navigation }) {
   const [step, setStep] = useState(0);
@@ -17,6 +18,7 @@ export default function App({ navigation }) {
   const [height, setHeight] = useState('');
   const [weight, setWeight] = useState('');
   const [gender, setGender] = useState('');
+  const [showPassword, setShowPassword] = useState(false);  // Estado para controlar a visibilidade da senha
 
   const isValidEmail = (email) => {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -104,7 +106,7 @@ export default function App({ navigation }) {
       console.error('Erro ao criar usuário:', error);
       showAlert('Erro', 'Erro ao criar a conta. Tente novamente.');
     }
-  };  
+  };
 
   const handleNextStep = () => {
     const trimmedName = name.trim();
@@ -158,7 +160,7 @@ export default function App({ navigation }) {
       });
 
       showAlert('Sucesso', 'Informações salvas com sucesso!');
-      navigation.replace('Home', { email });
+      navigation.replace('Finalizacao', { email });
     } catch (error) {
       console.error('Erro ao salvar informações no Firestore:', error);
       showAlert('Erro', 'Erro ao salvar informações. Tente novamente.');
@@ -183,13 +185,18 @@ export default function App({ navigation }) {
             onChangeText={setEmail}
             value={email}
           />
-          <TextInput
-            style={styles.input}
-            placeholder="Senha..."
-            secureTextEntry
-            onChangeText={setPassword}
-            value={password}
-          />
+          <View style={styles.passwordContainer}>
+            <TextInput
+              style={styles.input}
+              placeholder="Senha..."
+              secureTextEntry={!showPassword} // Controla a visibilidade da senha
+              onChangeText={setPassword}
+              value={password}
+            />
+            <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeIcon}>
+              <Icon name={showPassword ? "eye-slash" : "eye"} size={20} color="gray" />
+            </TouchableOpacity>
+          </View>
           <TouchableOpacity style={styles.button} onPress={handleSignUp}>
             <Text style={styles.buttonText}>Cadastro Seguro</Text>
           </TouchableOpacity>
@@ -201,7 +208,6 @@ export default function App({ navigation }) {
           </Text>
         </>
       )}
-
   
       {step === 1 && (
         <>
@@ -390,5 +396,15 @@ const styles = StyleSheet.create({
   bold: {
     fontWeight: 'bold' // Se preferir o texto destacado em preto
   },
+  passwordContainer: {
+  flexDirection: 'row',       // Alinha os itens em uma linha
+  alignItems: 'center',       // Alinha o ícone verticalmente no centro do campo
+  width: '325',              // Garante que ocupe toda a largura do campo
+},
+
+eyeIcon: {
+  marginLeft: -30,             // Adiciona um espaço à esquerda do ícone
+}
+
 
 });
