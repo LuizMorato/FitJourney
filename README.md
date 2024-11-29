@@ -19,12 +19,14 @@ Estamos cientes de que há muito a ser aprimorado, e estamos comprometidos em ev
 ## Tecnologias ✅
 
 <a href="https://skillicons.dev">
-    <img src="https://skillicons.dev/icons?i=react" />
-    <img src="https://skillicons.dev/icons?i=firebase" />
+    <img src="https://skillicons.dev/icons?i=react" /> 
+    <img src="https://skillicons.dev/icons?i=firebase" /> 
 </a>
 
 <BR>
 
+- [`React Native`](https://reactnative.dev/docs/getting-started) -React Native permite criar aplicativos móveis nativos para iOS e Android usando JavaScript.
+- [`Firebase`](https://firebase.google.com/) - Conexão com Banco de Dados.
 - [`FitApi`](https://my-json-server.typicode.com/trabalhos-etec/api-fitjourney/db) - API feita pelos autores do repositório para fornecer informações nutricionais (por enquanto, apenas um achocolatado).
 - [`Calorias por Alimento`](https://caloriasporalimentoapi.herokuapp.com/) - API utilizada para fornecer a quantidade de calorias por alimento.
 
