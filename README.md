@@ -4,19 +4,15 @@
 
 ## Descrição
 
-**Projeto FitJourney: Versão Pré-Alpha 0.0.1**
+**Projeto FitJourney: Versão Demo**
 
-Este projeto foi desenvolvido como parte do componente "Programação de Aplicativos Mobile II" do curso e também é o trabalho de conclusão de curso (TCC) dos alunos envolvidos. Apresentamos o FitJourney em sua versão PRÉ-ALPHA 0.0.2. É importante destacar que esta é uma versão inicial e não finalizada do FitJourney.
-
-O aplicativo desenvolvido serve como a **BASE** para o futuro desenvolvimento do TCC. Esta versão representa apenas **0,1% do potencial completo do FitJourney**. Ainda há muitos elementos de **TESTE** no código, e várias melhorias são necessárias e planejadas.
+Este projeto foi desenvolvido como parte do componente "Programação de Aplicativos Mobile II" do curso e também é o trabalho de conclusão de curso (TCC) dos alunos envolvidos. Apresentamos o FitJourney em sua versão DEMO. É importante destacar que esta é uma versão inicial e não finalizada do FitJourney.
 
 Atualmente, o FitJourney conta com **conexão a um banco de dados** para cadastro e login de usuários. Além disso, permite que o usuário **escaneie rótulos e veja suas respectivas análises** (no momento, apenas de um achocolatado). 
 
 Foi desenvolvida uma **API personalizada**, a **FitApi**, que contém informações nutricionais de alimentos e serve como uma das bases do aplicativo.
 
 Além disso, estamos trabalhando para expandir as funcionalidades, visando fornecer uma plataforma completa de monitoramento de saúde e bem-estar, integrando análise nutricional, lembretes de atividades e informações personalizadas para cada usuário.
-
-Ressaltamos que esta não é a versão final do aplicativo, mas sim um **protótipo inicial** que servirá como alicerce para os desenvolvimentos futuros. O objetivo é expandir significativamente as funcionalidades e aprimorar a experiência do usuário à medida que avançamos no projeto. 
 
 Estamos cientes de que há muito a ser aprimorado, e estamos comprometidos em evoluir o FitJourney para que ele alcance todo o seu potencial. Agradecemos seu interesse e paciência enquanto continuamos a desenvolver este projeto promissor.
 
