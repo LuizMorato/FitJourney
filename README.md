@@ -1,6 +1,6 @@
-# FitJourney Demo - **BASIC PLAN**
+# FitJourney Demo <img src="https://cdn-icons-png.flaticon.com/512/861/861054.png" width="50" height="50">
 
-![SmartEats Exercícios e Nutrição Banner](https://github.com/trabalhos-etec/fit-journey-pre-alpha/assets/109006053/fd18dcfb-3f48-4cb5-9941-df5bbfbbd2de)
+![TCC - Trabalho de Conclusão de Curso](https://github.com/user-attachments/assets/90d369fb-f565-47d8-a1c4-31574afb63be)
 
 ## Descrição
 
