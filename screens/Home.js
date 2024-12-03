@@ -1,13 +1,29 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, SafeAreaView, ActivityIndicator, StyleSheet, Image, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
+import { 
+  View, 
+  Text, 
+  SafeAreaView, 
+  ActivityIndicator, 
+  StyleSheet, 
+  Image, 
+  ScrollView, 
+  Dimensions, 
+  TouchableOpacity,
+  Modal 
+} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Navbar from '../components/Navbar';
 import { db } from '../firebase';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { Notifications } from 'react-native-notifications';
 
 const { width, height } = Dimensions.get('window');
 
 export default function Home({ route, navigation }) {
+  const [selectedTime, setSelectedTime] = useState(new Date());
+  const [showPicker, setShowPicker] = useState(false);
+  const [isModalVisible, setModalVisible] = useState(false);
   const [selectedDate, setSelectedDate] = useState('');
   const [dateList, setDateList] = useState([]);
   const [checklist, setChecklist] = useState({
@@ -16,12 +32,26 @@ export default function Home({ route, navigation }) {
     passos: false,
   });
 
-  const toggleItem = (key) => {
-    setChecklist(prevChecklist => ({
-      ...prevChecklist,
-      [key]: !prevChecklist[key],
-    }));
+  const { email, total_calories } = route.params;
+
+  const [profileData, setProfileData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const toggleItem = async (key) => {
+    const updatedChecklist = { ...checklist, [key]: !checklist[key] };
+
+    try {
+      // Atualiza o checklist no Firestore
+      const userDocRef = doc(db, 'users', email);
+      await updateDoc(userDocRef, { checklist: updatedChecklist });
+    } catch (error) {
+      console.error('Erro ao atualizar checklist no Firestore:', error);
+    }
+
+    setChecklist(updatedChecklist);
   };
+
+  const formatValue = (value) => (value != null ? value : 0);
 
   useEffect(() => {
     const generateDates = () => {
@@ -44,24 +74,23 @@ export default function Home({ route, navigation }) {
     generateDates();
   }, []);
 
-  const { email, total_calories } = route.params;
-
-  const [profileData, setProfileData] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  const formatValue = (value) => (value != null ? value : 0);
-
   useEffect(() => {
     if (email) {
       const fetchUserProfile = async () => {
         try {
-          const docRef = doc(db, 'users', email);
-          const docSnap = await getDoc(docRef);
+          const userDocRef = doc(db, 'users', email);
+          const userSnapshot = await getDoc(userDocRef);
 
-          if (docSnap.exists()) {
-            setProfileData(docSnap.data());
+          if (userSnapshot.exists()) {
+            const userData = userSnapshot.data();
+            setProfileData(userData);
+
+            // Carrega checklist do Firestore se existir
+            if (userData.checklist) {
+              setChecklist(userData.checklist);
+            }
           } else {
-            console.log("Não encontrou o documento do usuário!");
+            console.log("Documento do usuário não encontrado!");
           }
         } catch (error) {
           console.error("Erro ao buscar dados do perfil:", error);
@@ -83,6 +112,30 @@ export default function Home({ route, navigation }) {
       </View>
     );
   }
+
+  const handleSetReminder = () => {
+    const now = new Date();
+    const reminderTime = new Date(selectedTime);
+  
+    if (reminderTime > now) {
+      const delay = reminderTime.getTime() - now.getTime();
+      
+      // Agendar uma notificação
+      setTimeout(() => {
+        Notifications.postLocalNotification({
+          title: "Hora de beber água! 💧",
+          body: "Não se esqueça de beber água!",
+          fireDate: reminderTime.toISOString(),
+        });
+      }, delay);
+  
+      alert('Lembrete definido com sucesso!');
+    } else {
+      alert('Escolha um horário futuro!');
+    }
+  
+    setModalVisible(false); // Fecha o modal
+  };
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -111,15 +164,19 @@ export default function Home({ route, navigation }) {
                     .replace(/^./, (char) => char.toUpperCase())}
                 </Text>
               </View>
-              <Icon name="bell" size={24} color="black" style={styles.notificationIcon} onPress={() => navigation.navigate('Notifications', { email })}/>
+              <Icon
+                name="bell"
+                size={24}
+                color="black"
+                style={styles.notificationIcon}
+                onPress={() => navigation.navigate('Notifications', { email })}
+              />
             </View>
           )}
         </View>
-
+        {/* DESAFIO DIÁRIO */}
         <View style={styles.dailyChallenge}>
-          <Text style={styles.dailyChallengeText}>
-            Desafio{'\n'}Diário
-          </Text>
+          <Text style={styles.dailyChallengeText}>Desafio{'\n'}Diário</Text>
           <View style={styles.daySelector}>
             {dateList.map((date, index) => {
               const [dayOfWeek, dayOfMonth] = date.split(' ');
@@ -128,7 +185,10 @@ export default function Home({ route, navigation }) {
               return (
                 <TouchableOpacity
                   key={index}
-                  style={[styles.dayContainer, isToday ? styles.selectedDayContainer : styles.otherDayContainer]}
+                  style={[
+                    styles.dayContainer,
+                    isToday ? styles.selectedDayContainer : styles.otherDayContainer,
+                  ]}
                   onPress={() => setSelectedDate(date)}
                 >
                   <Text style={[styles.day, isToday && styles.selectedDay]}>{dayOfWeek}</Text>
@@ -138,7 +198,7 @@ export default function Home({ route, navigation }) {
             })}
           </View>
         </View>
-
+        {/* ROTINA DE HOJE */}
         <Text style={styles.sectionTitle}>Rotina de Hoje</Text>
         <View style={styles.section}>
           <View style={styles.routineList}>
@@ -150,7 +210,13 @@ export default function Home({ route, navigation }) {
               <TouchableOpacity
                 key={item.key}
                 style={styles.routineItem}
-                onPress={() => toggleItem(item.key)}
+                onPress={() => {
+                  if (item.key === 'agua') {
+                    setModalVisible(true); // Exibe o modal apenas para 'agua'
+                  } else {
+                    toggleItem(item.key); // Lógica para outros itens
+                  }
+                }}
               >
                 <View style={[styles.iconContainer, { backgroundColor: item.color }]} />
                 <View style={styles.textContainer}>
@@ -167,22 +233,76 @@ export default function Home({ route, navigation }) {
           </View>
         </View>
 
+        {/* STATUS NUTRICIONAIS */}
         <Text style={styles.sectionTitle}>Status Nutricional</Text>
+        <Modal
+          visible={isModalVisible}
+          transparent={true}
+          animationType="slide"
+          onRequestClose={() => setModalVisible(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContainer}>
+              <Text style={styles.modalTitle}>Meta de Água</Text>
+              <Text style={styles.modalContent}>
+                Defina um horário para ser lembrado de beber água!
+              </Text>
+
+              <TouchableOpacity
+                style={styles.modalButton}
+                onPress={() => setShowPicker(true)}
+              >
+                <Text style={styles.modalButtonText}>Selecionar Horário</Text>
+              </TouchableOpacity>
+
+              {showPicker && (
+                <DateTimePicker
+                  value={selectedTime}
+                  mode="time"
+                  display="spinner"
+                  onChange={(event, date) => {
+                    setShowPicker(false);
+                    if (date) setSelectedTime(date);
+                  }}
+                />
+              )}
+
+              <TouchableOpacity
+                style={[styles.modalButton, { backgroundColor: '#00FF19' }]}
+                onPress={handleSetReminder}
+              >
+                <Text style={styles.modalButtonText}>Definir Lembrete</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.modalButton}
+                onPress={() => setModalVisible(false)}
+              >
+                <Text style={styles.modalButtonText}>Fechar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+
         <View style={styles.section}>
           <View style={styles.routineList}>
             {[
               { key: 'calories', title: 'Calorias', value: total_calories, color: '#FBB13C' },
             ].map((item) => (
-              <TouchableOpacity
+              <TouchableOpacity   
                 key={item.key}
                 style={styles.routineItem}
-              >
+                onPress={() => {
+                  if (item.key === 'agua') {
+                    setModalVisible(true);
+                  } else {
+                    toggleItem(item.key);
+                  }
+                }}>
                 <View style={[styles.iconContainer, { backgroundColor: item.color }]} />
                 <View style={styles.textContainer}>
                   <Text style={styles.routineTitle}>{item.title}</Text>
-                  <Text style={styles.routineSubtitle}>
-                    {formatValue(total_calories)} kcal
-                  </Text>
+                  <Text style={styles.routineSubtitle}>{formatValue(item.value)} kcal</Text>
                 </View>
                 <Icon
                   name="check-circle"
@@ -193,7 +313,6 @@ export default function Home({ route, navigation }) {
             ))}
           </View>
         </View>
-
       </ScrollView>
       <Navbar navigation={navigation} email={email} style={styles.navbarContainer} />
     </SafeAreaView>
@@ -449,7 +568,37 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#CCC',
   },
-
+    modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContainer: {
+    width: '80%',
+    padding: 20,
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  modalContent: {
+    fontSize: 16,
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  modalButton: {
+    backgroundColor: '#00CFFF',
+    padding: 10,
+    borderRadius: 5,
+    margin: 5,
+  },
+  modalButtonText: {
+    color: '#fff',
+    fontSize: 16,
+  },
 });
-
-

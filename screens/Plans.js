@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 const FitJourneyPlano = ({ navigation }) => {
@@ -53,7 +53,11 @@ const FitJourneyPlano = ({ navigation }) => {
         <Text style={styles.ctaText}>
           Invista em você! Acesse ferramentas exclusivas para alcançar seus objetivos.
         </Text>
-        <TouchableOpacity style={styles.subscribeButton}>
+        <TouchableOpacity
+          onPress={() => Alert.alert(
+            'Aguarde!',
+            'As funcionalidades premium ainda estão em desenvolvimento. Fique atento às próximas atualizações!'
+          )}  style={styles.subscribeButton}>
           <Text style={styles.subscribeButtonText}>Assinar agora</Text>
         </TouchableOpacity>
       </View>

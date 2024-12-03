@@ -6,7 +6,7 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "Permitir que Votto acesse sua câmera?",
+          "cameraPermission": "Permitir que FitJourney acesse sua câmera?",
           "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone",
           "recordAudioAndroid": true
         }
@@ -15,7 +15,7 @@
     ],
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/splash.png",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
@@ -23,13 +23,19 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.luizmorato.FitJourney"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ],
+      "package": "com.luizmorato.FitJourney"
     },
     "web": {
       "favicon": "./assets/favicon.png",
@@ -42,6 +48,11 @@
           "messagingSenderId": "112270504735",
           "appId": "1:112270504735:web:983e61b0de94fc28a7362a"
         }
+      }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "01d67834-edbd-413d-9bf1-23fee3649c27"
       }
     }
   }

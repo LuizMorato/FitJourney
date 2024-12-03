@@ -184,7 +184,10 @@ export default function Settings({ route, navigation }) {
 
         {/* Botão FitJourney Premium */}
         <TouchableOpacity onPress={() => navigation.navigate('Plans')} style={styles.premiumButton}>
-          <Text style={styles.premiumText}>FitJourney Premium</Text>
+          <Text style={styles.premiumText} onPress={() => Alert.alert(
+            'Aguarde!',
+            'As funcionalidades premium ainda estão em desenvolvimento. Fique atento às próximas atualizações!'
+          )}>FitJourney Premium</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
