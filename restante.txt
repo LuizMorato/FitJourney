@@ -1,8 +1,1 @@
-- API que traz informações com base no código de barras.
-- Termos de Utilização
-- Políticas de Segurança e Dados
-- Variáveis do Status Nutricionais pelo navbar.
-- QR Code PIX R$9,90
-- Ajustes no Design (botões de adicionar e escanear, fixar acima da navbar)
-- loadings
-
+oooooo
